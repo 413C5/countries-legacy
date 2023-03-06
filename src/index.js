@@ -2,21 +2,56 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import axios from 'axios';
 
+const CountryDetails = ({ country }) =>{
+  return(
+    <div>
+    <h1>{country.name}</h1>
+    <div>capital {country.capital}</div>
+    <div>population {country.population}</div>
+    <h2>languages:</h2>
+    <ul>
+      {Object.values(country.languages).map((language) => {
+        return (
+          <li key={language}>{language}</li>
+        )
+      })
+      }
+    </ul>
+    <div><img
+      src={country.flags.png}
+      alt={`${country.name} flag`}
+      width="128"
+      height="128"
+    /></div>
+  </div >
+  )
+}
+
 const App = () => {
   const [countries, setCountries] = useState([])
   const [query, setQuery] = useState('')
+  const [showCountry,setShowCountry]=useState({})
 
-  const handleQueryChanged = (event) => {
-    return (
-      setQuery(event.target.value)
+  const handleShowCountryChanged=(name)=>()=>{
+    return(
+      setShowCountry(
+        filteredCountries.filter((country)=>{
+          return(
+            country.name.includes(name)
+          )
+        })[0]
+      )
     )
+  }
+
+  const handleQueryChanged=(event)=>{
+    setQuery(event.target.value)
+    setShowCountry({})
   }
 
   const filteredCountries = countries.filter((country) => {
     return (
-      country.name.toLowerCase().includes(
-        query.toLowerCase()
-      )
+      country.name.toLowerCase().includes(query.toLowerCase())
     )
   })
 
@@ -36,6 +71,7 @@ const App = () => {
       )
   }, [])
 
+
   //console.log(countries)
   //console.log(filteredCountries)
 
@@ -53,32 +89,16 @@ const App = () => {
         filteredCountries.length > 1 &&
         filteredCountries.map((country) => {
           return (
-            <div key={country.name}>{country.name}</div>
+            <div key={country.name}>
+              {country.name} <button onClick={handleShowCountryChanged(country.name)}>show</button>
+            </div>
           )
         })
       }
       {filteredCountries.length === 1 && (
-        <div>
-          <h1>{filteredCountries[0].name}</h1>
-          <div>capital {filteredCountries[0].capital}</div>
-          <div>population {filteredCountries[0].population}</div>
-          <h2>languages:</h2>
-          <ul>
-            {Object.values(filteredCountries[0].languages).map((language) => {
-              return (
-                <li key={language}>{language}</li>
-              )
-            })
-            }
-          </ul>
-          <div><img
-            src={filteredCountries[0].flags.png}
-            alt={`${filteredCountries[0].name} flag`}
-            width="128"
-            height="128"
-          /></div>
-        </div>
-      )}
+        <CountryDetails country={filteredCountries[0]}/>
+        )}
+      {showCountry.name && <CountryDetails country={showCountry}/>}
     </div>
   )
 }
